@@ -107,7 +107,7 @@ class Tensor:
         def _backward():
             for i in range(row):
                 for j in range(col):
-                    self.grad[j + i * col] += out.grad[j + i * col]
+                    self.grad[j + i * col] += out.grad[0]
         out._backward = _backward
 
         return out

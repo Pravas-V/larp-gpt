@@ -9,7 +9,7 @@ def gradcheck(f, inputs, eps=1e-5, tol=1e-4):
     L.backward()
 
     # store gradients
-    grad_dict = {t_idx: tensor.grad for tensor in inputs}
+    grad_dict = {t_idx: tensor.grad for t_idx, tensor in enumerate(inputs)}
 
     # the actual checking
     for t_idx, tensor in enumerate(inputs):

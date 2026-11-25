@@ -1,3 +1,5 @@
+# run the tests using 'PYTHONPATH=src python3 -m unittest discover tests -v'
+
 import random
 import unittest
 from larp_larp.tensor import Tensor

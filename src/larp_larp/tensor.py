@@ -46,8 +46,8 @@ class Tensor:
 
         def _backward():
             for i in range(len(out_data)):
-                self.grad[i] += other[i] * out.grad[i]
-                other.grad[i] += self[i] * out.grad[i]
+                self.grad[i] += other.data[i] * out.grad[i]
+                other.grad[i] += self.data[i] * out.grad[i]
         out._backward = _backward
 
         return out

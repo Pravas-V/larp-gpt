@@ -2,7 +2,7 @@
 def gradcheck(f, inputs, eps=1e-5, tol=1e-4):
     # flush gradients
     for tensor in inputs:
-        tensor.grad = 0.0
+        tensor.grad = [0.0] * len(tensor.data)
 
     # run both passes
     L = f(*inputs)

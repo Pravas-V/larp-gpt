@@ -150,4 +150,19 @@ class Tensor:
         for node in reversed(topo):
             node._backward()
 
+
+    def to_list(self):
+        '''Takes a Tensor and returns its 2D form'''
+        # Write tests for this later if needed
+        row, col = self.shape
+        out = []
+        for i in range(row):
+            row = []
+            for j in range(col):
+                row.append(self.data[j + i * col])
+            out.append(row)
+
+        return out
+        
+
     

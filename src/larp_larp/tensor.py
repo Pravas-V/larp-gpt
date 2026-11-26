@@ -163,6 +163,18 @@ class Tensor:
             out.append(row)
 
         return out
+
+    @classmethod
+    def from_list(cls, matrix):
+        '''Empty matrices are not allowed'''
+        r = len(matrix); c = len(matrix[0])
+        out_val = []
+        for row in matrix:
+            out_val.extend(row)
+
+        return Tensor(out_val, shape=(r, c))
+
+        
         
 
     

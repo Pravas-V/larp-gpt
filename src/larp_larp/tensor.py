@@ -57,7 +57,7 @@ class Tensor:
 
 
     def __rmul__(self, other):
-        return self, other
+        return self * other
 
 
     def __sub__(self, other):
@@ -96,6 +96,9 @@ class Tensor:
         other : Tensor (B, 1)
         Returns a (B, V) Tensor
         '''
+        if isinstance(other, (float, int)):
+            other_data = [other] * (self.shape[0])
+            other = Tensor(other_data, (self.shape[0], 1))
         row, col = self.shape
         out_data = []
         for i in range(row):
@@ -106,8 +109,8 @@ class Tensor:
         def _backward():
             for i in range(row):
                 for j in range(col):
-                    self.grad[j + i * col] += (1 / other.data[i])
-                    other.grad[i] += (-self.grad[j + i * col] / other.grad[i]**2) * out.grad[j + i * col]
+                    self.grad[j + i * col] += (1 / other.data[i]) * out.grad[j + i * col]
+                    other.grad[i] += (-self.data[j + i * col] / other.data[i]**2) * out.grad[j + i * col]
         out._backward = _backward
 
         return out
@@ -212,7 +215,7 @@ class Tensor:
         def _backward():
             for i in range(row):
                 for j in range(col):
-                    self.grad[j + i * col] += 1.0 * self.grad[i]
+                    self.grad[j + i * col] += 1.0 * out.grad[i]
         out._backward = _backward
 
         return out

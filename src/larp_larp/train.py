@@ -7,20 +7,15 @@ from larp_larp.functional import softmax, cross_entropy
 def train(path, steps, batch_size, lr) -> None:
     # load data
     text = load_text(path)
-    #print(text[:5])
 
     # set up vocabulary
     tokenizer = CharTokenizer(text)
-    #print(tokenizer)
 
     # encode text
     ids = tokenizer.encode(text)
-    #print(ids[:5])
 
     # data split
     train, val = split_data(ids)
-    #print(train[:5])
-    #print(val[:5])
 
     # initialize model
     model = Bigram(vocab_size=tokenizer.vocab_size)
@@ -28,23 +23,21 @@ def train(path, steps, batch_size, lr) -> None:
 
     # initialize optimizer
     opt = SGD(model.parameters(), lr=lr)
-    #print(opt)
 
     # training loop
+    losses = []
     for step in range(steps):
 
-        #print(step)
         # select examples randomly
         xs, ys = get_batch(train, batch_size= batch_size)
 
         # get logits
         logits = model(xs)
-        #print(f'logits are {logits}')
 
         # loss
         probs = softmax(logits)
         loss = cross_entropy(probs, targets=ys)
-        print(f'loss is {loss.data[0]}')
+        losses.append(loss.data[0])
 
         # flush out gradients
         opt.zero_grad()
@@ -52,19 +45,20 @@ def train(path, steps, batch_size, lr) -> None:
         # back-propagate gradients
         loss.backward()
 
-        print(model.W.data)
-        print('-----------------------')
-
         # update params
         opt.step()
 
         # print training loss
-        if step % 100 == 0:
-            print(f'training loss after step {step + 1} is {loss}')
+        if (step) % 100 == 0:
+            print(f'average training loss (last 25 runs) after step {step + 1} is {sum(losses[-25: ]) / min(len(losses[-25:]), 25)}')
+            print(model.W.data)
+            print('-----------------------')
+            print('\n')
+            print('\n')
 
 
-# if __name__ == "__main__":
-#     train("data/input.txt", 500, 32, 0.5)
+if __name__ == "__main__":
+    train("data/input.txt", 500, 32, 0.5)
     
 
 

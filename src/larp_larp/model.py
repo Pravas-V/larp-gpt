@@ -1,9 +1,16 @@
+import random
 from larp_larp.tensor import Tensor
 
 class Bigram:
     def __init__(self, vocab_size: int):
         self.vocab_size = vocab_size
-        self.W = None
+
+        weights = []
+        for _ in range(self.vocab_size):
+            row = [random.gauss(0, 1) for n in range(self.vocab_size)]
+            weights.append(row)
+
+        self.W = Tensor.from_list(weights)
 
     def __call__(self, xs: list[int]) -> Tensor:
         x_enc = []
@@ -16,7 +23,7 @@ class Bigram:
         return x_enc @ self.W
 
     def parameters(self) -> list[Tensor]:
-        return self.W
+        return [self.W]
         
 
         

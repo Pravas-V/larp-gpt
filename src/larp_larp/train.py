@@ -49,7 +49,7 @@ def train(path, steps, batch_size, lr) -> None:
         opt.step()
 
         # print training loss
-        if (step) % 100 == 0:
+        if (step) % 25 == 0:
             print(f'average training loss (last 25 runs) after step {step + 1} is {sum(losses[-25: ]) / min(len(losses[-25:]), 25)}')
             print(model.W.data)
             print('-----------------------')
@@ -58,7 +58,7 @@ def train(path, steps, batch_size, lr) -> None:
 
 
 if __name__ == "__main__":
-    train("data/input.txt", 500, 32, 0.5)
+    train("data/input.txt", steps=1000, batch_size=1000, lr=3.14)
     
 
 

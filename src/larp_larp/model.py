@@ -1,3 +1,4 @@
+import json
 import random
 from larp_larp.tensor import Tensor
 
@@ -24,6 +25,32 @@ class Bigram:
 
     def parameters(self) -> list[Tensor]:
         return [self.W]
+
+    def save(self, path : str) -> None:
+        d = {
+            "vocab_size" : self.vocab_size,
+            "model_weights" : self.W.data,
+            "dimensions" : self.W.shape
+        }
+
+        with open(path, "w") as f:
+            json.dump(d, f)
+
+    @classmethod
+    def load(cls, path : str) -> "Bigram":
+        with open(path, 'r') as f:
+            d = json.load(f)
+
+        model = Bigram(
+            vocab_size=d["vocab_size"],
+        )
+        model.W = Tensor(data=d["model_weights"], shape=d["dimensions"])
+
+        return model
+
+
+
+
         
 
         

@@ -1,3 +1,4 @@
+import json
 
 class CharTokenizer:
 
@@ -12,6 +13,30 @@ class CharTokenizer:
 
     def decode(self, ids):
         return ''.join(list(self.itos[v] for v in ids))
+
+    def save(self, path : str) -> None:
+        d = {
+            "chars" : self.chars
+        }
+
+        with open(path, "w") as f:
+            json.dump(d, f)
+
+    @classmethod
+    def load(cls, path : str) -> "CharTokenizer":
+        with open(path, "r") as f:
+            d = json.load(f)
+
+        tokenizer = CharTokenizer(
+            d["chars"]
+        )
+
+        return tokenizer
+
+
+
+        
+
 
     
         

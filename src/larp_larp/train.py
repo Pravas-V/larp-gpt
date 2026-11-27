@@ -4,7 +4,7 @@ from larp_larp.model import Bigram
 from larp_larp.optim import SGD
 from larp_larp.functional import softmax, cross_entropy
 
-def train(path, steps, batch_size, lr) -> None:
+def train(path, steps, batch_size, lr) -> tuple[Bigram, CharTokenizer]:
     # load data
     text = load_text(path)
 
@@ -51,14 +51,18 @@ def train(path, steps, batch_size, lr) -> None:
         # print training loss
         if (step) % 25 == 0:
             print(f'average training loss (last 25 runs) after step {step + 1} is {sum(losses[-25: ]) / min(len(losses[-25:]), 25)}')
-            print(model.W.data)
             print('-----------------------')
             print('\n')
             print('\n')
 
+    return model, tokenizer
+    
+
 
 if __name__ == "__main__":
-    train("data/input.txt", steps=1000, batch_size=1000, lr=3.14)
+    model, tokenizer = train("data/input.txt", steps=1000, batch_size=500, lr=3.14)
+    model.save("checkpoints/bigram.json")
+    tokenizer.save("checkpoints/char_tok.json")
     
 
 

@@ -1,29 +1,41 @@
 import math
 from larp_larp.tensor import Tensor
 
-def softmax(row: list[float]) -> list[float]:
-    '''Convert logits to probabilities'''
-    m = max(row, key=abs)
-    row = [v - m for v in row]
-    D = sum(math.exp(v) for v in row)
-    probs = [math.exp(v) / D for v in row]
+def softmax(logits: Tensor) -> Tensor:
+    '''
+    Returns probabilites, each row is one training example
+    logtis : Tensor (B, V), B = Batch size, V = Vocab size
+    '''
+    log_exps = logits.exp()
+    probs = log_exps / log_exps.sum_rows()
     return probs
 
 
-def cross_entropy(logits: Tensor, targets: list[int]) -> Tensor:
+def cross_entropy(probs: Tensor, targets: list[int]) -> Tensor:
     '''
     Returns average cross entropy loss
     logits : Tensor (B, V); B = Batch size, V = Vocab size
     targets : list[int]
     '''
-    logits = logits.to_list()
-    log_loss = 0 
-    for i, row in enumerate(logits):
-        t_ix = targets[i]
-        p = softmax(row)[t_ix]
-        log_loss += -math.log(p)
+    B, V = probs.shape
 
-    return Tensor([log_loss / len(logits)], shape=(1, 1))
+    t_enc = []
+    for t_ix in targets:
+        enc = [0.0] * (V)
+        enc[t_ix] = 1.0
+        t_enc.append(enc)
+
+    t_enc = Tensor.from_list(t_enc)
+
+    loss = -(probs * t_enc).sum_rows().log().sum() / B
+    return loss
+
+    
+
+
+
+
+
 
         
     

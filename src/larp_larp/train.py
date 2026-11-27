@@ -7,42 +7,43 @@ from larp_larp.functional import softmax, cross_entropy
 def train(path, steps, batch_size, lr) -> None:
     # load data
     text = load_text(path)
-    print(text[:5])
+    #print(text[:5])
 
     # set up vocabulary
     tokenizer = CharTokenizer(text)
-    print(tokenizer)
+    #print(tokenizer)
 
     # encode text
     ids = tokenizer.encode(text)
-    print(ids[:5])
+    #print(ids[:5])
 
     # data split
     train, val = split_data(ids)
-    print(train[:5])
-    print(val[:5])
+    #print(train[:5])
+    #print(val[:5])
 
     # initialize model
     model = Bigram(vocab_size=tokenizer.vocab_size)
-    print(model)
+    #print(model)
 
     # initialize optimizer
     opt = SGD(model.parameters(), lr=lr)
-    print(opt)
+    #print(opt)
 
     # training loop
     for step in range(steps):
 
-        print(step)
+        #print(step)
         # select examples randomly
         xs, ys = get_batch(train, batch_size= batch_size)
 
         # get logits
         logits = model(xs)
-        print(f'logits are {logits}')
+        #print(f'logits are {logits}')
 
         # loss
-        loss = cross_entropy(logits, targets=ys)
+        probs = softmax(logits)
+        loss = cross_entropy(probs, targets=ys)
         print(f'loss is {loss.data[0]}')
 
         # flush out gradients
@@ -50,6 +51,9 @@ def train(path, steps, batch_size, lr) -> None:
 
         # back-propagate gradients
         loss.backward()
+
+        print(model.W.data)
+        print('-----------------------')
 
         # update params
         opt.step()

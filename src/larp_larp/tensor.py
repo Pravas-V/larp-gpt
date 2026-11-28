@@ -62,6 +62,10 @@ class Tensor:
         out._backward = _backward
 
         return out
+
+
+    def __radd__(self, other):
+        return self + other
     
 
     def __mul__(self, other) -> "Tensor":

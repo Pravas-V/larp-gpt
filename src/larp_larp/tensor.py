@@ -283,6 +283,25 @@ class Tensor:
 
         return Tensor(out_val, shape=(r, c))
 
+    def row(self, ids: list[int]) -> Tensor:
+        '''
+        self : Tensor (V, D)
+        '''
+        row, col = self.shape
+        out_data = []
+        for id in ids:
+            for j in range(col):
+                out_data.append(self.data[j + id * col])
+        out = Tensor(out_data, (len(ids), col), (self, ))
+
+        def _backward():
+            for i, id in enumerate(ids):
+                for j in range(col):
+                    self.grad[j + id * col] += 1.0 * out.grad[j + i * col]
+        out._backward = _backward
+
+        return out
+
         
         
 

@@ -49,6 +49,44 @@ class Bigram:
         return model
 
 
+###############################################################################################################
+from larp_larp.nn import *
+
+
+class GPT:
+
+    def __init__(self, vocab_size, block_size, n_embd, n_head, n_layer):
+        self.vocab_size = vocab_size
+        self.block_size = block_size
+        self.embedding = Embedding(vocab_size, block_size, n_embd)
+        self.blocks = [Block(n_embd, n_head) for _ in range(n_layer)]
+        self.ln_f = LayerNorm(n_embd)
+        self.lm_head = Linear(n_embd, vocab_size)
+
+
+    def __call__(self, ids: list[int]):
+        x = self.embedding(ids)
+        for block in self.blocks:
+            x = block(x)
+        x = self.ln_f(x)
+        logits = self.lm_head(x)
+        return logits
+
+
+    def parameters(self) -> list[Tensor]:
+        params = []
+        params.extend(self.embedding.parameters())
+        params.extend(self.ln_f.parameters())
+        params.extend(self.lm_head.parameters())
+        for b in self.blocks:
+            params.extend(b.parameters())
+
+        return params    
+
+
+
+
+
 
 
         

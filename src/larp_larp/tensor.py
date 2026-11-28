@@ -201,6 +201,18 @@ class Tensor:
         return out
 
 
+    def pow(self, p : float):
+        row, col = self.shape
+        out_data = [v**p for v in self.data]
+        out = Tensor(out_data, self.shape, (self, ))
+
+        def _backward():
+            for i in range(len(self.data)):
+                self.grad[i] += p*self.data[i]**(p - 1) * out.grad[i]
+        out._backward = _backward
+
+        return out
+
     def exp(self):
         out_data = []
         for v in self.data:

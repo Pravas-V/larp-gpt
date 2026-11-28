@@ -93,7 +93,7 @@ class LayerNorm:
 class Head:
 
     def __init__(self, n_embd, head_size):
-        
+        pass
 
 
     def __call__(self, x: Tensor) -> Tensor:

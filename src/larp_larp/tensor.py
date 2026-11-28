@@ -1,4 +1,5 @@
 import math
+import random
 
 class Tensor:
 
@@ -365,7 +366,16 @@ class Tensor:
         for row in matrix:
             out_val.extend(row)
 
-        return Tensor(out_val, shape=(r, c))
+        return cls(out_val, shape=(r, c))
+
+
+    @classmethod
+    def randn(cls, shape: tuple[int, int], std: float = 1.0) -> "Tensor":
+        '''Initialize a Tensor object whose entries are sampled from a standard normal'''
+        entries = shape[0] * shape[1]
+        out_val = [random.gauss(0, std) for _ in range(entries)]
+        return cls(out_val, shape)
+    
 
     def rows(self, ids: list[int]) -> Tensor:
         '''

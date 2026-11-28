@@ -21,15 +21,20 @@ class Tensor:
 
 
     def __add__(self, other):
-        '''Element wise addition'''
+        '''Element wise addition with support for row and column broadcasting'''
         row, col = self.shape
-        broadcast = other.shape == (1, col) and row != 1
+        row_broadcast = other.shape == (1, col) and row != 1
+        col_broadcast = other.shape = (row, 1) and col != 1
 
         # dont lose reference to other
-        if broadcast:
+        if row_broadcast:
             other_vals = []
             for _ in range(row):
                 other_vals.extend(other.data)
+        elif col_broadcast:
+            other_vals = []
+            for i in range(row):
+                other_vals.extend([other.data[i]]*col)
         else:
             other_vals = other.data
 
@@ -42,8 +47,10 @@ class Tensor:
             for i in range(row):
                 for j in range(col):
                     self.grad[j + i * col] += 1.0 * out.grad[j + i * col] 
-                    if broadcast:  
+                    if row_broadcast:  
                         other.grad[j] += 1.0 * out.grad[j + i * col]
+                    elif col_broadcast:
+                        other.grad[i] += 1.0 * out.grad[j + i * col]
                     else:
                         other.grad[j + i * col] += 1.0 * out.grad[j + i * col]
         out._backward = _backward

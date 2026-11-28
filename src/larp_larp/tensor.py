@@ -398,7 +398,7 @@ class Tensor:
 
 
     @staticmethod
-    def concat_cols(tensors: list[Tensor]) -> Tensor:
+    def concat(tensors: list[Tensor]) -> Tensor:
         '''Attaches tensors side by side, rows remain unchanged, columns = sum of all columns'''
         row, col = tensors[0].shape
 

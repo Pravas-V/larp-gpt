@@ -104,8 +104,6 @@ class Head:
         '''
         x : Tensor (T, n_embd)
         self.query, key, value : Linear layers (n_embd, head_size)
-        q, k, v : Tensor (T, head_size)
-        wei : Tensor (T, T)
         '''
 
         q = self.query(x)
@@ -141,6 +139,26 @@ class Head:
 
 
 
+class MultiHead:
 
+    def __init__(self, n_embd, n_heads):
+        self.n_heads = n_heads
+        self.heads = [Head(n_embd, n_embd//n_heads) for _ in range(n_heads)]
+        self.proj = Linear(n_embd, n_embd)
+
+
+    def __call__(self, x: Tensor) -> Tensor:
+        outs = [h(x) for h in self.heads]
+        out = Tensor.concat(outs)
+        out = self.proj(out)
+        return out        
+
+
+    def parameters(self):
+        params = []
+        for h in self.heads:
+            params.extend(h.parameters())
+
+        return params + self.proj.parameters()
 
 

@@ -22,9 +22,14 @@ class Tensor:
 
     def __add__(self, other):
         '''Element wise addition with support for row and column broadcasting'''
+
+        if isinstance(other, (float, int)):
+                other_data = [other] * len(self.data)
+                other = Tensor(other_data, self.shape)
+
         row, col = self.shape
         row_broadcast = other.shape == (1, col) and row != 1
-        col_broadcast = other.shape = (row, 1) and col != 1
+        col_broadcast = other.shape == (row, 1) and col != 1
 
         # dont lose reference to other
         if row_broadcast:
@@ -59,20 +64,38 @@ class Tensor:
     
 
     def __mul__(self, other):
-        '''Element wise multiplication of two identically sized tensors'''
+        '''Element wise multiplication of two identically sized / broad-castable tensors, supports row broad-casting'''
+        row, col = self.shape
+
         if isinstance(other, (float, int)):
             other_data = [other] * len(self.data)
             other = Tensor(other_data, self.shape)
 
+        row_broadcast = other.shape == (1, col) and row != 1
+
+        # dont lose reference to the original other Tensor
+        if row_broadcast:
+            other_vals = []
+            for _ in range(row):
+                other_vals.extend(other.data)
+        else:
+            other_vals = other.data
+
         out_data = []
-        for a_val, b_val in zip(self.data, other.data):
+        for a_val, b_val in zip(self.data, other_vals):
             out_data.append(a_val * b_val)
         out = Tensor(out_data, self.shape, (self, other))
 
         def _backward():
-            for i in range(len(out_data)):
-                self.grad[i] += other.data[i] * out.grad[i]
-                other.grad[i] += self.data[i] * out.grad[i]
+            for i in range(row):
+                for j in range(col):
+                    if row_broadcast:
+                        self.grad[j + i * col] += other.data[j] * out.grad[j + i * col]
+                        other.grad[j] += self.data[j + i * col] * out.grad[j + i * col]
+                    else:
+                        self.grad[j + i * col] += other.data[j + i * col] * out.grad[j + i * col]
+                        other.grad[j + i * col] += self.data[j + i * col] * out.grad[j + i * col]
+                        
         out._backward = _backward
 
         return out
@@ -201,7 +224,7 @@ class Tensor:
         return out
 
 
-    def pow(self, p : float):
+    def __pow__(self, p : float):
         row, col = self.shape
         out_data = [v**p for v in self.data]
         out = Tensor(out_data, self.shape, (self, ))

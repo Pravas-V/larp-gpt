@@ -191,6 +191,7 @@ class Tensor:
 
         return out
 
+
     def exp(self):
         out_data = []
         for v in self.data:
@@ -204,6 +205,7 @@ class Tensor:
 
         return out
 
+
     def log(self):
         out_data = []
         for v in self.data:
@@ -216,6 +218,7 @@ class Tensor:
         out._backward = _backward
 
         return out
+
 
     def sum_rows(self):
         row, col = self.shape
@@ -231,6 +234,28 @@ class Tensor:
             for i in range(row):
                 for j in range(col):
                     self.grad[j + i * col] += 1.0 * out.grad[i]
+        out._backward = _backward
+
+        return out
+    
+
+    def mean_rows(self) -> Tensor:
+        '''
+        Returns each row's average : Tensor (D, 1)
+        '''
+        row, col = self.shape
+        out_data = []
+        for i in range(row):
+            s = 0
+            for j in range(col):
+                s += self.data[j + i * col]
+            out_data.append(s / col)
+        out = Tensor(out_data, (row, 1), (self, ))
+
+        def _backward():
+            for i in range(row):
+                for j in range(col):
+                    self.grad[j + i * col] += 1.0 * out.grad[i] / col
         out._backward = _backward
 
         return out
@@ -316,6 +341,8 @@ class Tensor:
         out._backward = _backward
 
         return out
+
+    
 
         
         

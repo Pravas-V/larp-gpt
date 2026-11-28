@@ -63,3 +63,26 @@ class Linear:
 
     def parameters(self) -> list[Tensor]:
         return [self.W, self.b] if self.bias else [self.W]
+
+
+
+
+class LayerNorm:
+
+    def __init__(self, n_embd: int, eps: float = 1e-5):
+        self.n_embd = n_embd
+        self.eps = eps
+        self.gamma = Tensor([1.0]*n_embd, (1, n_embd))
+        self.beta = Tensor([0.0]*n_embd, (1, n_embd))
+
+
+    def __call__(self, x: Tensor) -> Tensor:
+        pass
+
+        
+    def parameters(self):
+        pass
+
+
+
+

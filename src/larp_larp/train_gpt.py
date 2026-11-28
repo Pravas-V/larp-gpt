@@ -50,6 +50,8 @@ def train_gpt(
 
 if __name__ == "__main__":
     model, tokenizer = train_gpt("data/input.txt", steps=1000, block_size=8, batch_size=4, n_embd=16, n_head=2, n_layer=1, lr=1)
-            
+    model.save("checkpoints/gpt.json")
+    tokenizer.save("checkpoints/char_tok-gpt.json")
+    
 
 

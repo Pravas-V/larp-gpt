@@ -162,3 +162,49 @@ class MultiHead:
         return params + self.proj.parameters()
 
 
+
+# the feed forward network
+class MLP:
+
+    def __init__(self, n_embd):
+        self.fc = Linear(n_embd, 4*n_embd)
+        self.proj = Linear(4*n_embd, n_embd)
+
+
+    def __call__(self, x: Tensor) -> Tensor:
+        h = self.fc(x)
+        h = h.relu()
+        out = self.proj(h)
+        return out
+
+
+    def parameters(self):
+        return self.fc.parameters() + self.proj.parameters()
+
+
+
+
+class Block:
+
+    def __init__(self, n_embd, n_head):
+        self.n_head = n_head
+        self.ln1 = LayerNorm(n_embd)
+        self.sa = MultiHead(n_embd, n_head)
+        self.ln2 = LayerNorm(n_embd)
+        self.ffwd = MLP(n_embd)
+
+    def __call__(self, x : Tensor) -> Tensor:
+        a = self.ln1(x)
+        a = self.sa(a)
+        x = x + a
+        m = self.ln2(x)
+        m = self.ffwd(m)
+        x = x + m
+        return x
+
+    def parameters(self):
+        return self.ln1.parameters() + self.sa.parameters() + self.ln2.parameters() + self.ffwd.parameters()
+    
+
+    
+        

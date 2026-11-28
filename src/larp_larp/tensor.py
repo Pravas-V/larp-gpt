@@ -84,16 +84,18 @@ class Tensor:
 
     def __sub__(self, other):
         '''Self - other'''
-        out_data = []
-        for a_val, b_val in zip(self.data, other.data):
-            out_data.append(a_val - b_val)
-        out = Tensor(out_data, self.shape, (self, other))
+        # out_data = []
+        # for a_val, b_val in zip(self.data, other.data):
+        #     out_data.append(a_val - b_val)
+        # out = Tensor(out_data, self.shape, (self, other))
 
-        def _backward():
-            for i in range(len(self.data)):
-                self.grad[i] += 1.0 * out.grad[i]
-                other.grad[i] += -1.0 * out.grad[i]
-        out._backward = _backward
+        # def _backward():
+        #     for i in range(len(self.data)):
+        #         self.grad[i] += 1.0 * out.grad[i]
+        #         other.grad[i] += -1.0 * out.grad[i]
+        # out._backward = _backward
+
+        out = self + (-other)
 
         return out
 

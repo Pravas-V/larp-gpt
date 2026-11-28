@@ -16,26 +16,50 @@ class Embedding:
         token_data = []
         for _ in range(vocab_size):
             t_d = [random.gauss(0, 1) for n in range(n_embd)]
-            token_data.append(t_d)
+            token_data.extend(t_d)
 
         self.tok_emb = Tensor(token_data, (vocab_size, n_embd))
 
         position_data = []
         for _ in range(block_size):
             p_d = [random.gauss(0, 1) for n in range(n_embd)]
-            position_data.append(t_d)
+            position_data.extend(p_d)
 
         self.pos_emb = Tensor(position_data, (block_size, n_embd))
 
 
     def __call__(self, ids: list[int]) -> Tensor:
         T = len(ids)
-        tok = self.tok_emb.row(ids)
-        pos = self.pos_emb.row(list(range(T)))
+        tok = self.tok_emb.rows(ids)
+        pos = self.pos_emb.rows(list(range(T)))
         return tok + pos
     
 
     def parameters(self) -> list[Tensor]:
         return [self.tok_emb, self.pos_emb]
     
-        
+
+
+
+class Linear:
+
+    def __init__(self, in_features: int, out_features: int, bias: bool = True):
+
+        self.in_features = in_features
+        self.out_features = out_features
+        self.bias = bias
+        weight_data = []
+        for _ in range(in_features):
+            w_d = [random.gauss(0, 1) for n in range(out_features)]
+            weight_data.extend(w_d)
+    
+        self.W = Tensor(weight_data, (in_features, out_features))
+        self.b = Tensor([0.0]*out_features, (1, out_features)) if bias else None
+
+
+    def __call__(self, x: Tensor) -> Tensor:
+        out = x @ self.W + self.b if self.bias else x @ self.W
+        return out
+
+    def parameters(self) -> list[Tensor]:
+        return [self.W, self.b] if self.bias else [self.W]

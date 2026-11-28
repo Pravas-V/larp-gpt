@@ -22,15 +22,30 @@ class Tensor:
 
     def __add__(self, other):
         '''Element wise addition'''
+        row, col = self.shape
+        broadcast = other.shape == (1, col) and row != 1
+
+        # dont lose reference to other
+        if broadcast:
+            other_vals = []
+            for _ in range(row):
+                other_vals.extend(other.data)
+        else:
+            other_vals = other.data
+
         out_data = []
-        for a_val, b_val in zip(self.data, other.data):
+        for a_val, b_val in zip(self.data, other_vals):
             out_data.append(a_val + b_val)
         out = Tensor(out_data, self.shape, (self, other))
 
         def _backward():
-            for i in range(len(out_data)):
-                self.grad[i] += 1.0 * out.grad[i]   
-                other.grad[i] += 1.0 * out.grad[i]
+            for i in range(row):
+                for j in range(col):
+                    self.grad[j + i * col] += 1.0 * out.grad[j + i * col] 
+                    if broadcast:  
+                        other.grad[j] += 1.0 * out.grad[j + i * col]
+                    else:
+                        other.grad[j + i * col] += 1.0 * out.grad[j + i * col]
         out._backward = _backward
 
         return out
@@ -283,7 +298,7 @@ class Tensor:
 
         return Tensor(out_val, shape=(r, c))
 
-    def row(self, ids: list[int]) -> Tensor:
+    def rows(self, ids: list[int]) -> Tensor:
         '''
         self : Tensor (V, D)
         '''

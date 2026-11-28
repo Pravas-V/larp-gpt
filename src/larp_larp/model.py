@@ -58,6 +58,9 @@ class GPT:
     def __init__(self, vocab_size, block_size, n_embd, n_head, n_layer):
         self.vocab_size = vocab_size
         self.block_size = block_size
+        self.n_embd = n_embd
+        self.n_head = n_head
+        self.n_layer = n_layer
         self.embedding = Embedding(vocab_size, block_size, n_embd)
         self.blocks = [Block(n_embd, n_head) for _ in range(n_layer)]
         self.ln_f = LayerNorm(n_embd)
@@ -83,12 +86,30 @@ class GPT:
 
         return params    
 
+    def save(self, path: str) -> None:
+        d = {
+            "vocab_size": self.vocab_size,
+            "block_size": self.block_size,
+            "n_embd": self.n_embd,
+            "n_head": self.n_head,
+            "n_layer": self.n_layer,
+            "weights": [p.data for p in self.parameters()],
+        }
+        with open(path, "w") as f:
+            json.dump(d, f)
 
+    @classmethod
+    def load(cls, path: str) -> "GPT":
+        with open(path, "r") as f:
+            d = json.load(f)
 
-
-
-
-
-        
-
-        
+        model = cls(
+            vocab_size=d["vocab_size"],
+            block_size=d["block_size"],
+            n_embd=d["n_embd"],
+            n_head=d["n_head"],
+            n_layer=d["n_layer"],
+        )
+        for p, data in zip(model.parameters(), d["weights"]):
+            p.data = data
+        return model

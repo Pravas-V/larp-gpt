@@ -25,8 +25,8 @@ class Tensor:
         '''Element wise addition with support for row and column broadcasting'''
 
         if isinstance(other, (float, int)):
-                other_data = [other] * len(self.data)
-                other = Tensor(other_data, self.shape)
+            other_data = [other] * len(self.data)
+            other = Tensor(other_data, self.shape)
 
         row, col = self.shape
         row_broadcast = other.shape == (1, col) and row != 1

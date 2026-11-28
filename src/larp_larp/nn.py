@@ -1,5 +1,6 @@
 import random
 from larp_larp.tensor import Tensor
+from larp_larp.functional import softmax
 
 class Embedding:
 
@@ -93,15 +94,52 @@ class LayerNorm:
 class Head:
 
     def __init__(self, n_embd, head_size):
-        pass
+        self.head_size = head_size
+        self.query = Linear(n_embd, head_size, bias=False)
+        self.key = Linear(n_embd, head_size, bias=False)
+        self.value = Linear(n_embd, head_size, bias=False)
 
 
     def __call__(self, x: Tensor) -> Tensor:
-        pass
+        '''
+        x : Tensor (T, n_embd)
+        self.query, key, value : Linear layers (n_embd, head_size)
+        q, k, v : Tensor (T, head_size)
+        wei : Tensor (T, T)
+        '''
+
+        q = self.query(x)
+        k = self.key(x)
+        v = self.value(x)
+
+        # scaled dot product attention
+        wei = q @ k.T
+        wei *= (self.head_size**-0.5)
+    
+
+        # mask
+        T = wei.shape[0]
+        mask_data = [0]*(T**2)
+        for i in range(T):
+            for j in range(i + 1, T):
+                mask_data[j + i * T] = float('-inf')
+        
+        mask = Tensor(mask_data, wei.shape)
+
+        # convert to attention fractions
+        wei = wei + mask
+        att = softmax(wei)
+
+        # weighted value
+        out = att @ v
+        return out
+        
+
+    def parameters(self) -> list[Tensor]:
+        return self.query.parameters() + self.key.parameters() + self.value.parameters()
+    
 
 
-    def parameters(self) -> Tensor:
-        pass
 
 
 

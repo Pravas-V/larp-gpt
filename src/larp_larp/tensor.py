@@ -64,7 +64,7 @@ class Tensor:
         return out
     
 
-    def __mul__(self, other):
+    def __mul__(self, other) -> "Tensor":
         '''Element wise multiplication of two identically sized / broad-castable tensors, supports row broad-casting'''
         row, col = self.shape
 
@@ -395,6 +395,31 @@ class Tensor:
         out._backward = _backward
 
         return out
+
+
+    @staticmethod
+    def concat_cols(tensors: list[Tensor]) -> Tensor:
+        '''Attaches tensors side by side, rows remain unchanged, columns = sum of all columns'''
+        row, col = tensors[0].shape
+
+        out_data = []
+        for i in range(row):
+            for t in tensors:
+                out_data.extend(t.rows([i]).data)
+        new_col = sum(t.shape[1] for t in tensors)
+        out = Tensor(out_data, (row, new_col), set(tensors))
+
+        def _backward():
+            for t_ix, t in enumerate(tensors):
+                for i in range(row):
+                    for j in range(col):
+                        t.grad[j + i * col] += out.grad[t_ix * col + j + i * new_col]
+        out._backward = _backward
+
+        return out
+
+
+
 
     
 

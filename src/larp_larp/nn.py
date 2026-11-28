@@ -79,11 +79,28 @@ class LayerNorm:
     def __call__(self, x: Tensor) -> Tensor:
         '''take rows of x and normalize them (mean = 0, std = 1)'''
         mean = x.mean_rows()
-        std = (((x - x.mean_rows())**2).mean_rows() + self.eps)**0.5
+        std = (((x - mean)**2).mean_rows() + self.eps)**0.5
         x = (x - mean) / std
+        return x * self.gamma + self.beta
 
         
-    def parameters(self):
+    def parameters(self) -> list[Tensor]:
+        return [self.gamma, self.beta]
+
+
+
+
+class Head:
+
+    def __init__(self, n_embd, head_size):
+        
+
+
+    def __call__(self, x: Tensor) -> Tensor:
+        pass
+
+
+    def parameters(self) -> Tensor:
         pass
 
 

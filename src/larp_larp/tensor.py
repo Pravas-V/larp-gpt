@@ -374,7 +374,7 @@ class Tensor:
 
 
     @classmethod
-    def randn(cls, shape: tuple[int, int], std: float = 1.0) -> "Tensor":
+    def randn(cls, shape: tuple[int, int], std: float = 0.02) -> "Tensor":
         '''Initialize a Tensor object whose entries are sampled from a standard normal'''
         entries = shape[0] * shape[1]
         out_val = [random.gauss(0, std) for _ in range(entries)]

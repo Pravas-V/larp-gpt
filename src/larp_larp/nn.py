@@ -13,20 +13,8 @@ class Embedding:
         self.vocab_size = vocab_size
         self.block_size = block_size
         self.n_embd = n_embd
-
-        token_data = []
-        for _ in range(vocab_size):
-            t_d = [random.gauss(0, 1) for n in range(n_embd)]
-            token_data.extend(t_d)
-
-        self.tok_emb = Tensor(token_data, (vocab_size, n_embd))
-
-        position_data = []
-        for _ in range(block_size):
-            p_d = [random.gauss(0, 1) for n in range(n_embd)]
-            position_data.extend(p_d)
-
-        self.pos_emb = Tensor(position_data, (block_size, n_embd))
+        self.tok_emb = Tensor.randn((vocab_size, n_embd))
+        self.pos_emb = Tensor.randn((block_size, n_embd))
 
 
     def __call__(self, ids: list[int]) -> Tensor:
@@ -49,12 +37,7 @@ class Linear:
         self.in_features = in_features
         self.out_features = out_features
         self.bias = bias
-        weight_data = []
-        for _ in range(in_features):
-            w_d = [random.gauss(0, 1) for n in range(out_features)]
-            weight_data.extend(w_d)
-    
-        self.W = Tensor(weight_data, (in_features, out_features))
+        self.W = Tensor.randn((in_features, out_features))
         self.b = Tensor([0.0]*out_features, (1, out_features)) if bias else None
 
 
